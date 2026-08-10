@@ -1,7 +1,0 @@
-{
-  "/_not-found/page": "/_not-found",
-  "/historial/page": "/historial",
-  "/cliente/[id]/page": "/cliente/[id]",
-  "/panorama/page": "/panorama",
-  "/page": "/"
-}
