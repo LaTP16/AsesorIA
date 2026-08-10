@@ -1,0 +1,13 @@
+canal,tipo_cliente,tasa_aceptacion
+Call In,desconocido,0.33263535746335626
+Call In,postpago,0.3975770137945822
+Call In,prepago,0.3395645246946362
+Call Out,desconocido,0.34068912117692607
+Call Out,postpago,0.398139358268464
+Call Out,prepago,0.3435748243808983
+Digital,desconocido,0.3353825136612022
+Digital,postpago,0.40083137835946825
+Digital,prepago,0.3389876964307467
+Tienda,desconocido,0.33803092581718536
+Tienda,postpago,0.40063498126089137
+Tienda,prepago,0.34410848321767457
