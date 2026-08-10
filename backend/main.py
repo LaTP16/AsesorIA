@@ -18,8 +18,8 @@ load_dotenv()
 
 app = FastAPI(
     title="Movistar IQ - API Backend",
-    description="API para la herramienta interna de asesores comerciales Movistar (Cola de Prioridad, Inferencia y Copiloto IA)",
-    version="1.2.0"
+    description="API para la herramienta interna de asesores comerciales Movistar (Cola de Prioridad, Panorama General, Inferencia y Copiloto IA)",
+    version="1.3.0"
 )
 
 # Habilitar CORS para frontend Next.js (http://localhost:3000)
@@ -73,6 +73,8 @@ def read_root():
         "status": "online",
         "endpoints": [
             "GET /cola-prioridad",
+            "GET /panorama-general",
+            "GET /panorama-general/campana/{campana_id}",
             "GET /cliente/{cliente_id}",
             "POST /registrar-interaccion",
             "POST /chat-asesor"
@@ -114,7 +116,137 @@ def get_cola_prioridad(limit: Optional[int] = Query(100, description="Número de
         raise HTTPException(status_code=500, detail=f"Error al obtener cola: {str(e)}")
 
 
-# 2. GET /cliente/{cliente_id}
+# 2. GET /panorama-general
+@app.get("/panorama-general")
+def get_panorama_general():
+    """
+    Retorna métricas resumidas a nivel de parque y los totales por campaña comercial.
+    """
+    try:
+        if not os.path.exists(ARCHIVO_CLIENTES) or not os.path.exists(ARCHIVO_COLA):
+            raise HTTPException(status_code=500, detail="Archivos de datos no encontrados en backend/data/")
+
+        df_cli = pd.read_csv(ARCHIVO_CLIENTES)
+        df_cola = pd.read_csv(ARCHIVO_COLA)
+
+        total_clientes = int(len(df_cli))
+        oportunidad_mt_cnt = int((df_cli['brecha_mt'] == True).sum())
+        cross_sell_cnt = int((df_cli['gap_hogar_movil'] == True).sum())
+        riesgo_alto_cnt = int((df_cola['riesgo'] == 'alto').sum())
+
+        fatiga_present = bool('fatiga_oferta' in df_cli.columns)
+        if fatiga_present:
+            retencion_cnt = int(((df_cola['riesgo'] == 'alto') | (df_cli['fatiga_oferta'] == True)).sum())
+        else:
+            retencion_cnt = riesgo_alto_cnt
+
+        return {
+            "resumen": {
+                "total_clientes": total_clientes,
+                "oportunidad_mt": oportunidad_mt_cnt,
+                "cross_sell_disponible": cross_sell_cnt,
+                "riesgo_alto": riesgo_alto_cnt
+            },
+            "campanas": [
+                {
+                    "id": "brecha_mt",
+                    "nombre": "Oportunidad Movistar Total",
+                    "descripcion": "Clientes elegibles que nunca aceptaron MT",
+                    "total": oportunidad_mt_cnt
+                },
+                {
+                    "id": "cross_sell",
+                    "nombre": "Cross-sell Hogar/Móvil",
+                    "descripcion": "Clientes con solo uno de los dos servicios",
+                    "total": cross_sell_cnt
+                },
+                {
+                    "id": "retencion",
+                    "nombre": "Riesgo de Fuga",
+                    "descripcion": "Riesgo alto o fatiga de oferta sin conversión",
+                    "total": retencion_cnt
+                }
+            ]
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generando panorama general: {str(e)}")
+
+
+# 3. GET /panorama-general/campana/{campana_id}
+@app.get("/panorama-general/campana/{campana_id}")
+def get_campana_detalle(
+    campana_id: str = Path(..., description="ID de la campaña: brecha_mt, cross_sell, retencion"),
+    limit: Optional[int] = Query(100, description="Número máximo de clientes a retornar")
+):
+    """
+    Devuelve la lista de clientes priorizados para una campaña específica,
+    ordenada por score_aceptacion descendente (máximo 'limit' resultados).
+    """
+    campana_clean = campana_id.strip().lower()
+    campanas_validas = ['brecha_mt', 'cross_sell', 'retencion']
+
+    if campana_clean not in campanas_validas:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Campaña '{campana_id}' no encontrada. Campañas válidas: {', '.join(campanas_validas)}"
+        )
+
+    try:
+        if not os.path.exists(ARCHIVO_CLIENTES) or not os.path.exists(ARCHIVO_COLA):
+            raise HTTPException(status_code=500, detail="Archivos de datos no encontrados en backend/data/")
+
+        df_cli = pd.read_csv(ARCHIVO_CLIENTES)
+        df_cola = pd.read_csv(ARCHIVO_COLA)
+
+        cols_merge = ['cliente_id']
+        if 'gap_hogar_movil' in df_cli.columns:
+            cols_merge.append('gap_hogar_movil')
+        if 'fatiga_oferta' in df_cli.columns:
+            cols_merge.append('fatiga_oferta')
+
+        df_merged = df_cola.merge(df_cli[cols_merge], on='cliente_id', how='left')
+
+        if campana_clean == 'brecha_mt':
+            sub = df_merged[df_merged['brecha_mt'] == True]
+        elif campana_clean == 'cross_sell':
+            sub = df_merged[df_merged.get('gap_hogar_movil', False) == True]
+        elif campana_clean == 'retencion':
+            is_fatiga = df_merged.get('fatiga_oferta', False) == True
+            is_alto = df_merged['riesgo'] == 'alto'
+            sub = df_merged[is_alto | is_fatiga]
+        else:
+            sub = df_merged
+
+        sub_sorted = sub.sort_values(by='score_aceptacion', ascending=False)
+        if limit and limit > 0:
+            sub_sorted = sub_sorted.head(limit)
+
+        resultado = []
+        for _, row in sub_sorted.iterrows():
+            c_id = str(row['cliente_id'])
+            num_clean = c_id.replace('CLI', '').lstrip('0')
+            nombre_disp = f"Cliente #{num_clean.zfill(3)}"
+
+            resultado.append({
+                "cliente_id": c_id,
+                "nombre_display": nombre_disp,
+                "prioridad": str(row['prioridad']).lower(),
+                "motivo_prioridad": str(row['motivo_prioridad']),
+                "score_aceptacion": float(round(row['score_aceptacion'], 2)),
+                "riesgo_churn": str(row['riesgo']).lower()
+            })
+
+        return resultado
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error obteniendo campaña '{campana_id}': {str(e)}")
+
+
+# 4. GET /cliente/{cliente_id}
 @app.get("/cliente/{cliente_id}")
 def get_cliente_detalle(cliente_id: str = Path(..., description="ID del cliente a consultar")):
     c_id_clean = cliente_id.strip().upper()
@@ -192,7 +324,7 @@ def get_cliente_detalle(cliente_id: str = Path(..., description="ID del cliente 
         raise HTTPException(status_code=500, detail=f"Error al generar detalle: {str(e)}")
 
 
-# 3. POST /registrar-interaccion
+# 5. POST /registrar-interaccion
 @app.post("/registrar-interaccion")
 def registrar_interaccion(datos: InteraccionInput):
     try:
@@ -220,7 +352,7 @@ def registrar_interaccion(datos: InteraccionInput):
         raise HTTPException(status_code=500, detail=f"Error al registrar interacción: {str(e)}")
 
 
-# 4. POST /chat-asesor (Copiloto Movistar IQ)
+# 6. POST /chat-asesor (Copiloto Movistar IQ)
 @app.post("/chat-asesor")
 def chat_asesor(datos: ChatAsesorInput):
     c_id = datos.cliente_id.strip().upper()

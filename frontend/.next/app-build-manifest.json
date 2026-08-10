@@ -11,15 +11,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
     ],
-    "/cliente/[id]/page": [
+    "/panorama/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/cliente/[id]/page.js"
-    ],
-    "/historial/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/historial/page.js"
+      "static/chunks/app/panorama/page.js"
     ]
   }
 }

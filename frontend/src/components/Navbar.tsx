@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ListOrdered, History, Zap, ShieldCheck } from 'lucide-react';
+import { Menu, X, ListOrdered, History, LayoutDashboard } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -11,6 +11,7 @@ export const Navbar: React.FC = () => {
 
   const navLinks = [
     { href: '/', label: 'Cola', icon: ListOrdered },
+    { href: '/panorama', label: 'Panorama', icon: LayoutDashboard },
     { href: '/historial', label: 'Historial', icon: History },
   ];
 
