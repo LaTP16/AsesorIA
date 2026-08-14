@@ -38,8 +38,10 @@ En una terminal, navega a la carpeta `backend`, instala dependencias e inicia el
 cd backend
 pip install -r requirements.txt
 
-# (Opcional) Configurar tu API Key de Google AI Studio para explicaciones generativas en vivo
+# Configurar tu API Key de Google AI Studio para explicaciones generativas en vivo
 copy .env.example .env
+# IMPORTANTE (Seguridad): Obtén tu API Key real en Google AI Studio y edita la variable GEMINI_API_KEY dentro de backend/.env.
+# NUNCA commitees la API Key real en .env.example ni en el repositorio.
 
 # Iniciar servidor Uvicorn en http://localhost:8000
 uvicorn main:app --reload

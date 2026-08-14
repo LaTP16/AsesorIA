@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   Bot,
   Send,
@@ -14,6 +16,7 @@ import {
   TrendingUp,
   RefreshCw
 } from 'lucide-react';
+
 
 export interface AdvisorChatProps {
   cliente_id: string;
@@ -80,6 +83,8 @@ export const AdvisorChat: React.FC<AdvisorChatProps> = ({
     setLoading(true);
 
     try {
+      const newMessages = [...messages, userMsg];
+
       const res = await fetch(`${API_BASE_URL}/chat-asesor`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -87,7 +92,7 @@ export const AdvisorChat: React.FC<AdvisorChatProps> = ({
           cliente_id: cliente_id,
           oferta_id: oferta_id || 'OF001',
           mensaje_usuario: messageContent,
-          historial_mensajes: messages.map((m) => ({ role: m.role, content: m.content }))
+          historial_mensajes: newMessages.slice(0, -1).map((m) => ({ role: m.role, content: m.content }))
         })
       });
 
@@ -208,19 +213,30 @@ export const AdvisorChat: React.FC<AdvisorChatProps> = ({
                 )}
 
                 {/* Formatted Content */}
-                <div className="whitespace-pre-wrap space-y-1">
-                  {m.content.split('\n').map((line, idx) => {
-                    if (line.startsWith('- ')) {
-                      return (
-                        <div key={idx} className="flex items-start space-x-1.5 pl-1 my-0.5">
-                          <span className="text-[#019BDE] font-bold">•</span>
-                          <span>{line.replace('- ', '')}</span>
-                        </div>
-                      );
-                    }
-                    return <p key={idx}>{line}</p>;
-                  })}
+                <div className="space-y-1">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      p: ({ children }) => <p className="mb-1 last:mb-0 leading-relaxed">{children}</p>,
+                      strong: ({ children }) => (
+                        <strong className={isAssistant ? "font-bold text-gray-900" : "font-extrabold text-white"}>
+                          {children}
+                        </strong>
+                      ),
+                      ul: ({ children }) => <ul className="space-y-1 my-1 pl-0.5 list-none">{children}</ul>,
+                      ol: ({ children }) => <ol className="space-y-1 my-1 pl-4 list-decimal">{children}</ol>,
+                      li: ({ children }) => (
+                        <li className="flex items-start space-x-1.5 my-0.5">
+                          <span className={isAssistant ? "text-[#019BDE] font-bold select-none" : "text-blue-200 font-bold select-none"}>•</span>
+                          <span className="flex-1">{children}</span>
+                        </li>
+                      )
+                    }}
+                  >
+                    {m.content}
+                  </ReactMarkdown>
                 </div>
+
 
                 <span className={`text-[10px] block mt-1 ${isAssistant ? 'text-gray-400 text-right' : 'text-blue-200 text-right'}`}>
                   {m.timestamp}

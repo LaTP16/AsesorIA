@@ -45,10 +45,23 @@ def entrenar_y_guardar():
     )
     model.fit(X_imp, y_train)
 
-    tasa_cliente_map = train.groupby('cliente_id')['tasa_aceptacion_cliente'].first().to_dict()
-    lookup_canal_segmento_map = train.groupby(['canal', 'tipo_cliente'])['tasa_aceptacion_canal_segmento'].first().to_dict()
+    # Calcular mapa de tasa suavizada completa y conteo de interacciones para inferencia
+    df_hist = pd.read_csv(os.path.join(DATA_DIR, 'historial_campanias_limpio.csv'))
+    df_hist['fecha'] = pd.to_datetime(df_hist['fecha'])
+    train_mask = (df_hist['fecha'] >= '2026-01-01') & (df_hist['fecha'] < '2026-05-01')
+    df_train_raw = df_hist[train_mask].copy()
+    df_train_raw['target_num'] = (df_train_raw['resultado'] == 'aceptada').astype(int)
 
-    global_tasa_train = float(y_train.mean())
+    global_tasa_train = float(df_train_raw['target_num'].mean())
+
+    stats_cliente = df_train_raw.groupby('cliente_id')['target_num'].agg(sum_acc='sum', n_count='count').reset_index()
+    k_prior = 10.0
+    stats_cliente['tasa_suavizada'] = (stats_cliente['sum_acc'] + k_prior * global_tasa_train) / (stats_cliente['n_count'] + k_prior)
+
+    tasa_cliente_map = stats_cliente.set_index('cliente_id')['tasa_suavizada'].to_dict()
+    n_interacciones_cliente_map = stats_cliente.set_index('cliente_id')['n_count'].to_dict()
+
+    lookup_canal_segmento_map = train.groupby(['canal', 'tipo_cliente'])['tasa_aceptacion_canal_segmento'].first().to_dict()
 
     artefacto = {
         'model': model,
@@ -57,6 +70,7 @@ def entrenar_y_guardar():
         'bool_cols': bool_cols,
         'imputer': imputer,
         'tasa_cliente_map': tasa_cliente_map,
+        'n_interacciones_cliente_map': n_interacciones_cliente_map,
         'lookup_canal_segmento_map': lookup_canal_segmento_map,
         'global_tasa_train': global_tasa_train
     }

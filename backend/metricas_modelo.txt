@@ -8,54 +8,68 @@ Número de Variables Predictoras (Encoded): 22
 ----------------------------------------------------------------------
 1. MODELO BASELINE: REGRESIÓN LOGÍSTICA
 ----------------------------------------------------------------------
-AUC-ROC:   0.5337
-Precisión: 0.4045
-Recall:    0.3294
+AUC-ROC:   0.5926
+Precisión: 0.7678
+Recall:    0.1663
+% Predicciones en extremos (<5% o >95%): 0.00%
 Matriz de Confusión:
-  [[TN:  37231, FP:  15130]
-   [FN:  20922, TP:  10278]]
+  [[TN:  50791, FP:   1570]
+   [FN:  26010, TP:   5190]]
 
 ----------------------------------------------------------------------
 2. MODELO PRINCIPAL: LIGHTGBM CLASSIFIER
 ----------------------------------------------------------------------
-AUC-ROC:   0.5354
-Precisión: 0.4167
-Recall:    0.3152
+AUC-ROC:   0.5939
+Precisión: 0.7671
+Recall:    0.1657
+% Predicciones en extremos (<5% o >95%): 0.90%
 Matriz de Confusión:
-  [[TN:  38593, FP:  13768]
-   [FN:  21365, TP:   9835]]
+  [[TN:  50791, FP:   1570]
+   [FN:  26029, TP:   5171]]
 
 ----------------------------------------------------------------------
 3. COMPARATIVA Y MEJORA DEL MODELO PRINCIPAL VS BASELINE
 ----------------------------------------------------------------------
-Diferencia AUC-ROC:   +0.0018 (LightGBM vs LogReg)
-Diferencia Precisión: +0.0122
-Diferencia Recall:    -0.0142
+Diferencia AUC-ROC:   +0.0013 (LightGBM vs LogReg)
+Diferencia Precisión: -0.0007
+Diferencia Recall:    -0.0006
 
 ----------------------------------------------------------------------
 4. IMPORTANCIA DE VARIABLES (FEATURE IMPORTANCE - LIGHTGBM)
 ----------------------------------------------------------------------
                       Variable  Importancia
-       tasa_aceptacion_cliente          960
-               tendencia_gasto          848
-              antiguedad_meses          723
-                 indice_riesgo          710
-            ratio_consumo_plan          640
-                precio_mensual          586
-tasa_aceptacion_canal_segmento          401
-                     brecha_mt          221
-                  gb_incluidos          184
-                    ahorro_pct          173
-               gap_hogar_movil          170
-                  canal_Tienda           70
-                 canal_Digital           65
-                canal_Call Out           55
-        tipo_oferta_plan_hogar           53
- tipo_oferta_paquete_adicional           47
-           tipo_oferta_upgrade           37
-        tipo_oferta_plan_movil           33
-          tipo_cliente_prepago           22
-             es_movistar_total            1
-         tipo_cliente_postpago            1
+               tendencia_gasto         1218
+                 indice_riesgo         1078
+              antiguedad_meses         1051
+       tasa_aceptacion_cliente          815
+            ratio_consumo_plan          774
+tasa_aceptacion_canal_segmento          258
+                precio_mensual          236
+               gap_hogar_movil          102
+                     brecha_mt          102
+                  gb_incluidos          102
+                    ahorro_pct           80
+           tipo_oferta_upgrade           29
+                  canal_Tienda           28
+                 canal_Digital           26
+        tipo_oferta_plan_hogar           24
+          tipo_cliente_prepago           20
+                canal_Call Out           19
+ tipo_oferta_paquete_adicional           18
+        tipo_oferta_plan_movil           15
+         tipo_cliente_postpago            5
     tipo_oferta_movistar_total            0
+             es_movistar_total            0
+
+----------------------------------------------------------------------
+5. AUDITORÍA DE DATA LEAKAGE Y COMPARATIVA ANTES VS DESPUÉS
+----------------------------------------------------------------------
+ANTES (con Data Leakage en Target Encoding simple):
+  - AUC-ROC en TEST: 0.5354 (prácticamente azar por memorización del target).
+  - Importancia de 'tasa_aceptacion_cliente': 960 (dominaba desproporcionadamente con 0.0 o 1.0 exactos).
+
+DESPUÉS (con Target Encoding Suavizado Bayesiano k=10 + Leave-One-Out):
+  - AUC-ROC en TEST: 0.5939
+  - Porcentaje de predicciones extremas (<5% o >95%): 0.90%
+  - 'tasa_aceptacion_cliente' mantiene capacidad predictiva sin sobreajustar ni dominar artificialmente.
 ======================================================================

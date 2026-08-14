@@ -352,6 +352,11 @@ def registrar_interaccion(datos: InteraccionInput):
         raise HTTPException(status_code=500, detail=f"Error al registrar interacción: {str(e)}")
 
 
+import logging
+
+# Configurar logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+
 # 6. POST /chat-asesor (Copiloto Movistar IQ)
 @app.post("/chat-asesor")
 def chat_asesor(datos: ChatAsesorInput):
@@ -384,9 +389,19 @@ def chat_asesor(datos: ChatAsesorInput):
 
         factores_str = "\n".join([f"- {v['variable']}: {v['valor']} ({v['efecto']})" for v in vars_top])
 
+        # Formatear historial de mensajes (últimos 10 turnos)
+        historial_str = ""
+        if datos.historial_mensajes:
+            ultimos = datos.historial_mensajes[-10:]
+            turnos = []
+            for m in ultimos:
+                rol_label = "Asesor" if m.role in ["user", "advisor"] else "Copiloto"
+                turnos.append(f"{rol_label}: {m.content}")
+            historial_str = "\n".join(turnos)
+
         system_prompt = f"""
 Eres el "Copiloto Movistar IQ", un asistente experto en ventas de telecomunicaciones de Movistar.
-Estás apoyando en tiempo real a un asesor comercial que está atendiendo bajo presión de tiempo a este cliente:
+Estás apoyando en tiempo real a un asesor comercial que está atendiendo a este cliente:
 
 INFORMACIÓN CONTEXTUAL DEL CLIENTE:
 - Cliente ID: {c_id}
@@ -399,19 +414,38 @@ INFORMACIÓN CONTEXTUAL DEL CLIENTE:
 - Factores clave del modelo (SHAP):
 {factores_str}
 
-PREGUNTA / DUDA DEL ASESOR:
+HISTORIAL PREVIO DE LA CONVERSACIÓN CON EL ASESOR:
+{historial_str if historial_str else "(No hay mensajes previos en este turno)"}
+
+PREGUNTA / DUDA ACTUAL DEL ASESOR:
 "{datos.mensaje_usuario}"
 
-INSTRUCCIONES:
-1. Responde de forma muy directa, concisa y práctica (2 a 3 puntos o frases cortas).
-2. Da argumentos comerciales contundentes, tips de negociación o cómo rebatir la objeción específica.
-3. Mantén un tono motivador, profesional y directo para usarse en tienda o call center.
+INSTRUCCIONES CRÍTICAS:
+1. Responde de forma DIRECTA y ESPECÍFICA a lo que el asesor te está pidiendo en "PREGUNTA / DUDA ACTUAL DEL ASESOR". Si pide un guión o script para el cliente, redacta el texto exacto que el asesor debe decirle al cliente. Si pide una técnica de objeción de precio, da los pasos exactos.
+2. NO des introducciones genéricas de "Soy tu copiloto" ni repitas datos del cliente a menos que te los pida expresamente.
+3. Toma en cuenta los mensajes previos si el asesor está haciendo una repregunta o pidiendo un ajuste.
+4. Usa formato limpio con negritas (**texto**) y viñetas (- ) concisas y listas para usar en tienda/call center.
 """
 
         api_key = os.environ.get("GEMINI_API_KEY")
+        modo_respuesta = "llm"
 
-        if not api_key:
-            respuesta_texto = _generar_respuesta_chat_respaldo(datos.mensaje_usuario, nombre_oferta, riesgo, score_pct, c_id)
+        # Verificar si la API key es válida
+        es_key_valida = api_key and not api_key.startswith("AQ.Ab8RN6J") and "tu_api_key" not in api_key
+
+        if not es_key_valida:
+            logging.warning("[Copiloto Chat] GEMINI_API_KEY no configurada o es placeholder. Utilizando modo de respuesta de respaldo dinámico.")
+            modo_respuesta = "respaldo"
+            respuesta_texto = _generar_respuesta_chat_respaldo(
+                pregunta=datos.mensaje_usuario,
+                nombre_oferta=nombre_oferta,
+                riesgo=riesgo,
+                score_pct=score_pct,
+                cliente_id=c_id,
+                row_c=row_c,
+                vars_top=vars_top,
+                historial_mensajes=datos.historial_mensajes
+            )
         else:
             try:
                 client = genai.Client(api_key=api_key)
@@ -419,18 +453,44 @@ INSTRUCCIONES:
                 
                 if hasattr(client, 'interactions') and callable(getattr(client.interactions, 'create', None)):
                     res = client.interactions.create(model=modelo_nombre, input=system_prompt)
-                    respuesta_texto = getattr(res, 'text', str(res))
+                    # Extraer respuesta limpia del SDK de Google GenAI
+                    respuesta_texto = getattr(res, 'output_text', None) or getattr(res, 'text', None) or str(res)
                 else:
                     res = client.models.generate_content(model=modelo_nombre, contents=system_prompt)
-                    respuesta_texto = res.text
+                    respuesta_texto = getattr(res, 'text', str(res))
+
+                if not respuesta_texto or not respuesta_texto.strip():
+                    logging.warning("[Copiloto Chat] Gemini retornó una respuesta vacía. Activando respuesta de respaldo.")
+                    modo_respuesta = "respaldo"
+                    respuesta_texto = _generar_respuesta_chat_respaldo(
+                        pregunta=datos.mensaje_usuario,
+                        nombre_oferta=nombre_oferta,
+                        riesgo=riesgo,
+                        score_pct=score_pct,
+                        cliente_id=c_id,
+                        row_c=row_c,
+                        vars_top=vars_top,
+                        historial_mensajes=datos.historial_mensajes
+                    )
             except Exception as e_genai:
-                print(f"[Error Copiloto Gemini] {e_genai}. Usando respuesta de respaldo dinámico.")
-                respuesta_texto = _generar_respuesta_chat_respaldo(datos.mensaje_usuario, nombre_oferta, riesgo, score_pct, c_id)
+                logging.warning(f"[Copiloto Chat] Error de red/cuota o llamada a API Gemini ({type(e_genai).__name__}): {e_genai}. Usando respuesta de respaldo dinámico.")
+                modo_respuesta = "respaldo"
+                respuesta_texto = _generar_respuesta_chat_respaldo(
+                    pregunta=datos.mensaje_usuario,
+                    nombre_oferta=nombre_oferta,
+                    riesgo=riesgo,
+                    score_pct=score_pct,
+                    cliente_id=c_id,
+                    row_c=row_c,
+                    vars_top=vars_top,
+                    historial_mensajes=datos.historial_mensajes
+                )
 
         return {
             "cliente_id": c_id,
             "respuesta": respuesta_texto.strip(),
-            "timestamp": datetime.now().strftime("%H:%M:%S")
+            "timestamp": datetime.now().strftime("%H:%M:%S"),
+            "modo": modo_respuesta
         }
 
     except HTTPException:
@@ -439,24 +499,65 @@ INSTRUCCIONES:
         raise HTTPException(status_code=500, detail=f"Error en Copiloto IA: {str(e)}")
 
 
-def _generar_respuesta_chat_respaldo(pregunta: str, nombre_oferta: str, riesgo: str, score_pct: int, cliente_id: str) -> str:
+def _generar_respuesta_chat_respaldo(
+    pregunta: str,
+    nombre_oferta: str,
+    riesgo: str,
+    score_pct: int,
+    cliente_id: str,
+    row_c: Any = None,
+    vars_top: List[Dict[str, Any]] = None,
+    historial_mensajes: List[ChatMessage] = None
+) -> str:
     p_lower = pregunta.lower().strip()
 
+    # 1. Saludos
     if any(w in p_lower for w in ['hola', 'buenas', 'saludos', 'quien eres', 'quién eres', 'que haces', 'qué haces']):
         return f"👋 **¡Hola! Soy tu Copiloto Movistar IQ**.\n- Estoy listo para ayudarte a cerrar la recomendación de **{nombre_oferta}** para el cliente **{cliente_id}**.\n- Puedo darte argumentos de precio, beneficios de conectividad o estrategias para riesgo {riesgo.upper()}. ¿En qué te ayudo?"
 
-    if any(w in p_lower for w in ['caro', 'precio', 'costo', 'pagar', 'descuento', 'carisimo']):
+    # 2. Guión / Script / Pitch de venta
+    if any(w in p_lower for w in ['guion', 'guión', 'script', 'speech', 'pitch', 'argumento', 'decirle', 'presentar']):
+        return f"🗣️ **Guión de Venta Sugerido ({nombre_oferta})**:\n- *'Hola, revisando tu historial como cliente preferencial con propensión de **{score_pct}%**, tenemos hoy una mejora especial para actualizar tu plan a **{nombre_oferta}**.'*\n- *'Con esto aseguras máxima velocidad de datos y beneficios de conectividad con riesgo de corte nulo.'*\n- *'¿Te parece si realizamos la activación inmediata desde este momento?'*"
+
+    # 3. Contexto detallado del cliente
+    if any(w in p_lower for w in ['contexto', 'detalle del cliente', 'datos', 'informacion', 'información', 'antiguedad', 'antigüedad', 'perfil']):
+        antiguedad = row_c.get('antiguedad_meses', 'N/A') if row_c is not None else 'N/A'
+        tipo = row_c.get('tipo_cliente', 'Postpago') if row_c is not None else 'Postpago'
+        canal = row_c.get('canal_mas_usado', 'Tienda') if row_c is not None else 'Tienda'
+        factores_formatted = "\n".join([f"  • **{v['variable']}**: {v['valor']} ({v['efecto']})" for v in (vars_top or [])[:3]])
+        return f"📋 **Contexto Detallado del Cliente ({cliente_id})**:\n- **Perfil**: Antigüedad de {antiguedad} meses | Tipo: {tipo} | Canal preferido: {canal}.\n- **Propensión y Riesgo**: Score de aceptación de **{score_pct}%** para **{nombre_oferta}** con riesgo de fuga **{riesgo.upper()}**.\n- **Factores clave (SHAP)**:\n{factores_formatted if factores_formatted else '  • Sin factores adicionales.'}"
+
+    # 3. Preguntas de seguimiento / repreguntas sobre la respuesta anterior
+    if any(w in p_lower for w in ['por que', 'por qué', 'dijiste', 'anterior', 'mencionaste', 'razon', 'razón', 'explic']):
+        if historial_mensajes and len(historial_mensajes) > 0:
+            ultimo_copiloto = None
+            for m in reversed(historial_mensajes):
+                if m.role in ['assistant', 'copiloto']:
+                    ultimo_copiloto = m.content
+                    break
+            if ultimo_copiloto:
+                factores_formatted = ", ".join([f"{v['variable']} ({v['valor']})" for v in (vars_top or [])[:2]])
+                return f"💡 **Explicación contextual (basada en el mensaje anterior)**:\n- En relación con lo conversado anteriormente (*'{ultimo_copiloto[:75]}...'*), la recomendación para **{cliente_id}** se sustenta en **{factores_formatted if factores_formatted else 'su patrón de consumo'}** y su nivel de riesgo **{riesgo.upper()}**.\n- Ofrecer **{nombre_oferta}** busca asegurar una propensión del **{score_pct}%**."
+
+    # 4. Precio
+    if any(w in p_lower for w in ['caro', 'precio', 'costo', 'pagar', 'descuento', 'carisimo', 'carísimo']):
         return f"💡 **Técnica de Precio para {nombre_oferta}**:\n- **Desglosa el costo diario**: Equivale a menos de S/ 2.50 adicionales por día.\n- **Ahorro por Gigas**: Evita que el cliente compre paquetes adicionales a fin de mes ({score_pct}% propensión).\n- **Beneficio Hoy**: Recuérdale que la activación es inmediata y sin costo de instalación."
 
+    # 5. Riesgo / Churn
     if any(w in p_lower for w in ['fuga', 'riesgo', 'churn', 'cancelar', 'baja', 'irse']):
         return f"⚠️ **Análisis de Riesgo de Fuga ({riesgo.upper()})**:\n- El cliente muestra riesgo por patrones históricos de sobreconsumo o antigüedad.\n- **Estrategia**: Presenta {nombre_oferta} como una atención de fidelización preferencial antes de que solicite la baja."
 
-    if any(w in p_lower for w in ['beneficio', 'ventaja', 'por que', 'por qué', 'caracteristica', 'giga', 'gb']):
+    # 6. Beneficios
+    if any(w in p_lower for w in ['beneficio', 'ventaja', 'caracteristica', 'característica', 'giga', 'gb']):
         return f"🎯 **3 Beneficios Clave para {nombre_oferta}**:\n- **Bolsa Ampliada de Gigas**: Conexión continua sin cortes ni degradación de velocidad.\n- **Prioridad de Red**: Mejor experiencia en zonas de alta demanda.\n- **Sin Trámites**: Mantiene el mismo número y chip actual."
 
-    return f"🤖 **Sugerencia Comercial ({nombre_oferta})**:\n- Para tu consulta *'{pregunta}'*: enfócate en el beneficio inmediato de {nombre_oferta} ({score_pct}% de propensión).\n- Haz una pregunta de cierre directo: *'¿Desea que le activemos la mejora de plan desde hoy mismo?'*"
+    # 7. Fallback dinámico (cuando no coincide ninguna categoría anterior)
+    factores_formatted = "\n".join([f"  • **{v['variable']}**: {v['valor']} ({v['efecto']})" for v in (vars_top or [])[:3]])
+    antiguedad = row_c.get('antiguedad_meses', 'N/A') if row_c is not None else 'N/A'
+    return f"🤖 **Análisis Comercial para {cliente_id}**:\n- **Ficha**: Cliente {row_c.get('tipo_cliente', 'postpago') if row_c is not None else 'postpago'} ({antiguedad} meses de antigüedad) con riesgo **{riesgo.upper()}**.\n- **Drivers Clave (SHAP)**:\n{factores_formatted if factores_formatted else '  • Evaluación basada en modelo de propensión.'}\n- **Sugerencia de Cierre**: Presenta **{nombre_oferta}** destaca su propensión del **{score_pct}%** y ofrece activación inmediata."
 
 
 if __name__ == '__main__':
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
