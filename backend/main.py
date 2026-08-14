@@ -116,6 +116,39 @@ def get_cola_prioridad(limit: Optional[int] = Query(100, description="Número de
         raise HTTPException(status_code=500, detail=f"Error al obtener cola: {str(e)}")
 
 
+# 1b. GET /cola-prioridad/resumen
+@app.get("/cola-prioridad/resumen")
+def get_cola_prioridad_resumen():
+    """
+    Retorna los totales agregados globales sobre la cartera completa (100,000 clientes).
+    """
+    try:
+        if not os.path.exists(ARCHIVO_COLA):
+            raise HTTPException(status_code=500, detail="Archivo 'data/cola_prioridad.csv' no encontrado.")
+
+        df_cola = pd.read_csv(ARCHIVO_COLA)
+        total_clientes = int(len(df_cola))
+        
+        counts = df_cola['prioridad'].str.lower().value_counts()
+        alta_cnt = int(counts.get('alta', 0))
+        media_cnt = int(counts.get('media', 0))
+        baja_cnt = int(counts.get('baja', 0))
+        riesgo_alto_cnt = int((df_cola['riesgo'].str.lower() == 'alto').sum())
+
+        return {
+            "total_clientes": total_clientes,
+            "alta": alta_cnt,
+            "media": media_cnt,
+            "baja": baja_cnt,
+            "riesgo_alto_real": riesgo_alto_cnt
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error obteniendo resumen de cola: {str(e)}")
+
+
+
 # 2. GET /panorama-general
 @app.get("/panorama-general")
 def get_panorama_general():

@@ -115,9 +115,19 @@ def generar_cola_prioridad():
         0.2 * best_df['brecha_mt_num']
     )
 
-    best_df = best_df.sort_values(by='prioridad_score', ascending=False).reset_index(drop=True)
-    terciles = pd.qcut(best_df['prioridad_score'], q=3, labels=['baja', 'media', 'alta'])
-    best_df['prioridad'] = terciles.astype(str)
+    def clasificar_prioridad_negocio(row):
+        r_str = str(row['riesgo'])
+        p_acc = float(row['probabilidad_aceptacion'])
+        p_score = float(row['prioridad_score'])
+        
+        if r_str == 'alto' or p_score >= 0.50 or p_acc >= 0.85:
+            return 'alta'
+        elif r_str == 'medio' or p_score >= 0.40 or p_acc >= 0.70:
+            return 'media'
+        else:
+            return 'baja'
+
+    best_df['prioridad'] = best_df.apply(clasificar_prioridad_negocio, axis=1)
 
     def generar_motivo(row):
         nombre_of = str(row.get('nombre_oferta', row.get('oferta_id')))

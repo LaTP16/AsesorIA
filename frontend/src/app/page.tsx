@@ -24,10 +24,19 @@ export interface ClienteQueueItem {
   riesgo_churn: 'alto' | 'medio' | 'bajo';
 }
 
+export interface ColaResumen {
+  total_clientes: number;
+  alta: number;
+  media: number;
+  baja: number;
+  riesgo_alto_real: number;
+}
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function PriorityQueuePage() {
   const [clientes, setClientes] = useState<ClienteQueueItem[]>([]);
+  const [resumen, setResumen] = useState<ColaResumen | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -39,12 +48,20 @@ export default function PriorityQueuePage() {
     setLoading(true);
     setErrorMsg(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/cola-prioridad?limit=100`);
-      if (!res.ok) {
-        throw new Error(`HTTP Error ${res.status}: No se pudo cargar la cola de prioridad.`);
+      const [resCola, resResumen] = await Promise.all([
+        fetch(`${API_BASE_URL}/cola-prioridad?limit=100`),
+        fetch(`${API_BASE_URL}/cola-prioridad/resumen`)
+      ]);
+      if (!resCola.ok) {
+        throw new Error(`HTTP Error ${resCola.status}: No se pudo cargar la cola de prioridad.`);
       }
-      const data = await res.json();
-      setClientes(data);
+      const dataCola = await resCola.json();
+      setClientes(dataCola);
+
+      if (resResumen.ok) {
+        const dataResumen = await resResumen.json();
+        setResumen(dataResumen);
+      }
     } catch (err: any) {
       console.error('Error cargando cola de prioridad:', err);
       setErrorMsg('No se pudo conectar con el servidor backend (http://localhost:8000). Asegúrate de que Uvicorn está corriendo.');
@@ -117,19 +134,25 @@ export default function PriorityQueuePage() {
           </p>
         </div>
 
-        {/* Quick Advisor Metrics */}
+        {/* Quick Advisor Metrics (Global Totals from /cola-prioridad/resumen) */}
         <div className="flex items-center space-x-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
           <div className="bg-red-950/60 border border-red-500/40 rounded-lg px-3 py-2 text-center min-w-[100px]">
             <span className="text-[10px] text-red-200 uppercase font-bold tracking-wider block">Alta Urgencia</span>
-            <span className="text-xl font-extrabold text-red-400">{counts.alta}</span>
+            <span className="text-xl font-extrabold text-red-400">
+              {resumen ? resumen.alta.toLocaleString() : counts.alta}
+            </span>
           </div>
           <div className="bg-amber-950/60 border border-amber-500/40 rounded-lg px-3 py-2 text-center min-w-[100px]">
             <span className="text-[10px] text-amber-200 uppercase font-bold tracking-wider block">Media Urgencia</span>
-            <span className="text-xl font-extrabold text-amber-400">{counts.media}</span>
+            <span className="text-xl font-extrabold text-amber-400">
+              {resumen ? resumen.media.toLocaleString() : counts.media}
+            </span>
           </div>
           <div className="bg-blue-950/60 border border-blue-400/40 rounded-lg px-3 py-2 text-center min-w-[100px]">
             <span className="text-[10px] text-blue-200 uppercase font-bold tracking-wider block">Total Pendientes</span>
-            <span className="text-xl font-extrabold text-white">{counts.todos}</span>
+            <span className="text-xl font-extrabold text-white">
+              {resumen ? resumen.total_clientes.toLocaleString() : counts.todos}
+            </span>
           </div>
         </div>
       </div>
@@ -225,7 +248,18 @@ export default function PriorityQueuePage() {
             </button>
           </div>
         </div>
+      </div>
 
+      {/* Pagination & Scope Indicator */}
+      <div className="flex items-center justify-between text-xs text-gray-500 font-semibold px-1">
+        <span>
+          Mostrando los <strong className="text-gray-900">{filteredClients.length}</strong> prioritarios de <strong className="text-gray-900">{resumen ? resumen.total_clientes.toLocaleString() : '100,000'}</strong> clientes en cartera
+        </span>
+        {resumen && (
+          <span className="hidden sm:inline text-gray-400">
+            Riesgo Alto Real: <strong className="text-red-600 font-bold">{resumen.riesgo_alto_real}</strong> clientes
+          </span>
+        )}
       </div>
 
       {/* Error Banner if API Server Disconnected */}
