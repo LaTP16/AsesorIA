@@ -20,15 +20,15 @@ export const PriorityBadge: React.FC<PriorityBadgeProps> = ({
 
   if (normalized === 'alta') {
     label = 'Alta Prioridad';
-    colorClasses = 'bg-red-600 text-white border-red-700 font-bold shadow-sm';
+    colorClasses = 'bg-[#FDEBEC] text-[#EB5757] border-[#F7C1C1] font-semibold';
     IconComponent = AlertTriangle;
   } else if (normalized === 'media') {
     label = 'Prioridad Media';
-    colorClasses = 'bg-amber-500 text-white border-amber-600 font-semibold';
+    colorClasses = 'bg-[#FBF3DB] text-[#D9730D] border-[#F5E0B3] font-semibold';
     IconComponent = Clock;
   } else {
     label = 'Prioridad Baja';
-    colorClasses = 'bg-gray-500 text-white border-gray-600 font-medium';
+    colorClasses = 'bg-[#EDF3EC] text-[#448361] border-[#CBE0D1] font-medium';
     IconComponent = CheckCircle2;
   }
 

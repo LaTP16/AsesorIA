@@ -129,17 +129,80 @@ def generar_cola_prioridad():
 
     best_df['prioridad'] = best_df.apply(clasificar_prioridad_negocio, axis=1)
 
-    def generar_motivo(row):
-        nombre_of = str(row.get('nombre_oferta', row.get('oferta_id')))
-        riesgo_str = str(row['riesgo'])
+    def generar_motivo_comercial(row):
+        nombre_of = str(row.get('nombre_oferta', row.get('oferta_id', '')))
+        r_str = str(row['riesgo']).lower()
         es_mt = bool(row.get('es_movistar_total_oferta', False)) or bool(row.get('brecha_mt', False))
 
-        if es_mt:
-            return f"Riesgo de fuga {riesgo_str} + candidato a Movistar Total ({nombre_of})"
-        else:
-            return f"Alta probabilidad de aceptar {nombre_of} + riesgo de fuga {riesgo_str}"
+        if r_str == 'alto':
+            if es_mt:
+                return f"Riesgo de fuga alto + Candidato a Movistar Total ({nombre_of})"
+            else:
+                return f"Riesgo de fuga alto + Retención prioritaria ({nombre_of})"
+        elif r_str == 'medio':
+            if es_mt:
+                return f"Riesgo de fuga medio + Candidato a Movistar Total ({nombre_of})"
+            else:
+                return f"Riesgo de fuga medio + Oportunidad {nombre_of}"
+        else: # bajo
+            if es_mt:
+                return f"Oportunidad Convergente Movistar Total ({nombre_of})"
+            else:
+                return f"Alta propensión de aceptación para {nombre_of}"
 
-    best_df['motivo_prioridad'] = best_df.apply(generar_motivo, axis=1)
+    best_df['motivo_prioridad'] = best_df.apply(generar_motivo_comercial, axis=1)
+
+    # Interleaving strategy for top commercial diversity in the queue
+    def categorizar_situacion(row):
+        r = str(row['riesgo']).lower()
+        b = bool(row['brecha_mt'])
+        s = float(row['probabilidad_aceptacion'])
+        
+        if r == 'alto':
+            return 'retencion'
+        elif b and s >= 0.65:
+            return 'movistar_total'
+        elif r == 'medio' and s >= 0.70:
+            return 'upsell'
+        elif s >= 0.80:
+            return 'cross_sell'
+        else:
+            return 'estandar'
+
+    best_df['situacion_tag'] = best_df.apply(categorizar_situacion, axis=1)
+
+    # Separate buckets sorted by prioridad_score descending
+    df_ret = best_df[best_df['situacion_tag'] == 'retencion'].sort_values('prioridad_score', ascending=False)
+    df_mt = best_df[best_df['situacion_tag'] == 'movistar_total'].sort_values('prioridad_score', ascending=False)
+    df_cs = best_df[best_df['situacion_tag'] == 'cross_sell'].sort_values('prioridad_score', ascending=False)
+    df_ups = best_df[best_df['situacion_tag'] == 'upsell'].sort_values('prioridad_score', ascending=False)
+    df_est = best_df[~best_df['cliente_id'].isin(
+        set(df_ret['cliente_id']).union(set(df_mt['cliente_id'])).union(set(df_cs['cliente_id'])).union(set(df_ups['cliente_id']))
+    )].sort_values('prioridad_score', ascending=False)
+
+    rec_ret = df_ret.to_dict('records')
+    rec_mt = df_mt.to_dict('records')
+    rec_cs = df_cs.to_dict('records')
+    rec_ups = df_ups.to_dict('records')
+    rec_est = df_est.to_dict('records')
+
+    i_ret = i_mt = i_cs = i_ups = i_est = 0
+    len_ret, len_mt, len_cs, len_ups, len_est = len(rec_ret), len(rec_mt), len(rec_cs), len(rec_ups), len(rec_est)
+
+    ordered_records = []
+    while len(ordered_records) < len(best_df):
+        if i_ret < len_ret:
+            ordered_records.append(rec_ret[i_ret]); i_ret += 1
+        if i_mt < len_mt:
+            ordered_records.append(rec_mt[i_mt]); i_mt += 1
+        if i_cs < len_cs:
+            ordered_records.append(rec_cs[i_cs]); i_cs += 1
+        if i_ups < len_ups:
+            ordered_records.append(rec_ups[i_ups]); i_ups += 1
+        elif i_est < len_est:
+            ordered_records.append(rec_est[i_est]); i_est += 1
+
+    best_df = pd.DataFrame(ordered_records)
 
     cola_df = pd.DataFrame({
         'cliente_id': best_df['cliente_id'],

@@ -4,8 +4,8 @@ import { Navbar } from '@/components/Navbar';
 import { ShieldCheck, Clock, PhoneCall } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Movistar IQ - Cola de Prioridad Comercial',
-  description: 'Herramienta interna de gestión priorizada de clientes para asesores comerciales Movistar.',
+  title: 'AsesorIA - Cola de Prioridad Comercial',
+  description: 'Herramienta interna de gestión priorizada de clientes para asesores comerciales.',
 };
 
 export default function RootLayout({
@@ -15,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className="min-h-screen flex flex-col bg-[#F4F7FA]">
+      <body className="min-h-screen flex flex-col bg-[#F7F6F3] text-[#37352F] selection:bg-[#E8F3F7] selection:text-[#017BAE]">
         {/* Top Navbar */}
         <Navbar />
 

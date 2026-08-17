@@ -165,18 +165,18 @@ export default function PanoramaPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       
       {/* Top Banner Context */}
-      <div className="bg-[#002E66] text-white p-4 sm:p-5 rounded-xl shadow-md border border-[#0050B5]/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white text-[#37352F] p-4 sm:p-5 rounded-lg shadow-[0_1px_2px_rgba(15,15,15,0.06)] border border-[#E3E2E0] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-blue-200 text-xs font-semibold uppercase tracking-wider mb-1">
-            <Layers className="w-4 h-4 text-[#019BDE]" />
+          <div className="flex items-center space-x-1.5 text-[#017BAE] text-xs font-semibold uppercase tracking-wider mb-1">
+            <Layers className="w-4 h-4 text-[#017BAE]" />
             <span>Panorama Comercial del Parque • Análisis de Campañas</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-[#37352F] tracking-tight">
             {selectedCampaignId && activeCampaignMeta
               ? activeCampaignMeta.nombre
               : 'Panorama General de Campañas'}
           </h1>
-          <p className="text-xs sm:text-sm text-blue-100 mt-0.5">
+          <p className="text-xs sm:text-sm text-[#787774] mt-0.5">
             {selectedCampaignId && activeCampaignMeta
               ? activeCampaignMeta.descripcion
               : 'Visión estratégica de oportunidades de venta convergente, cross-sell y retención.'}
@@ -186,7 +186,7 @@ export default function PanoramaPage() {
         {selectedCampaignId && (
           <button
             onClick={() => setSelectedCampaignId(null)}
-            className="flex items-center space-x-2 bg-[#019BDE] hover:bg-[#0082BD] text-white font-extrabold px-4 py-2 rounded-lg text-xs sm:text-sm shadow transition-all flex-shrink-0"
+            className="flex items-center space-x-1.5 bg-[#37352F] hover:bg-[#017BAE] text-white font-semibold px-3.5 py-1.5 rounded-md text-xs shadow-sm transition-all flex-shrink-0"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Volver a Panorama</span>
@@ -196,14 +196,14 @@ export default function PanoramaPage() {
 
       {/* Global Error Banner */}
       {errorMsg && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-red-800 text-xs sm:text-sm font-semibold">
+        <div className="bg-[#FDEBEC] border border-[#F7C1C1] rounded-lg p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-[#EB5757] text-xs sm:text-sm font-semibold">
           <div className="flex items-center space-x-2">
-            <ServerOff className="w-5 h-5 text-red-600 flex-shrink-0" />
+            <ServerOff className="w-5 h-5 text-[#EB5757] flex-shrink-0" />
             <span>{errorMsg}</span>
           </div>
           <button
             onClick={fetchOverview}
-            className="flex items-center space-x-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg font-bold transition-colors text-xs flex-shrink-0"
+            className="flex items-center space-x-1 bg-[#EB5757] hover:bg-[#D84545] text-white px-3 py-1.5 rounded-md font-bold transition-colors text-xs flex-shrink-0"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Reintentar</span>
@@ -215,73 +215,73 @@ export default function PanoramaPage() {
       {!selectedCampaignId && (
         <>
           {loadingOverview ? (
-            <div className="bg-white p-8 text-center rounded-xl border border-gray-200 space-y-3">
-              <div className="w-8 h-8 rounded-full border-2 border-blue-200 border-t-[#019BDE] animate-spin mx-auto"></div>
-              <p className="text-sm font-bold text-blue-900">Cargando métricas de panorama comercial...</p>
+            <div className="bg-white p-8 text-center rounded-lg border border-[#E3E2E0] space-y-3">
+              <div className="w-7 h-7 rounded-full border-2 border-[#C8E3ED] border-t-[#017BAE] animate-spin mx-auto"></div>
+              <p className="text-xs font-bold text-[#37352F]">Cargando métricas de panorama comercial...</p>
             </div>
           ) : overview ? (
-            <div className="space-y-6">
+            <div className="space-y-5">
               
               {/* SECTION 1: 4 Top KPI Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
                 
                 {/* KPI 1: Total Clientes */}
-                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+                <div className="bg-white p-4 rounded-lg border border-[#E3E2E0] shadow-[0_1px_2px_rgba(15,15,15,0.04)] flex items-center justify-between">
                   <div>
-                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                    <span className="text-xs font-semibold text-[#787774] uppercase tracking-wider block mb-1">
                       Total Clientes Parque
                     </span>
-                    <span className="text-2xl sm:text-3xl font-black text-gray-900">
+                    <span className="text-xl sm:text-2xl font-black text-[#37352F]">
                       {overview.resumen.total_clientes.toLocaleString()}
                     </span>
                   </div>
-                  <div className="p-3 bg-blue-50 text-[#0050B5] rounded-xl border border-blue-100">
-                    <Users className="w-6 h-6" />
+                  <div className="p-2.5 bg-[#F1F1EF] text-[#37352F] rounded-md border border-[#E3E2E0]">
+                    <Users className="w-5 h-5" />
                   </div>
                 </div>
 
                 {/* KPI 2: Oportunidad Movistar Total */}
-                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between border-l-4 border-l-emerald-500">
+                <div className="bg-[#EDF3EC] p-4 rounded-lg border border-[#CBE0D1] shadow-[0_1px_2px_rgba(15,15,15,0.04)] flex items-center justify-between">
                   <div>
-                    <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider block mb-1">
+                    <span className="text-xs font-semibold text-[#448361] uppercase tracking-wider block mb-1">
                       Oportunidad Movistar Total
                     </span>
-                    <span className="text-2xl sm:text-3xl font-black text-emerald-600">
+                    <span className="text-xl sm:text-2xl font-black text-[#448361]">
                       {overview.resumen.oportunidad_mt.toLocaleString()}
                     </span>
                   </div>
-                  <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
-                    <Sparkles className="w-6 h-6" />
+                  <div className="p-2.5 bg-white text-[#448361] rounded-md border border-[#CBE0D1]">
+                    <Sparkles className="w-5 h-5" />
                   </div>
                 </div>
 
                 {/* KPI 3: Cross-sell Disponibles */}
-                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between border-l-4 border-l-amber-500">
+                <div className="bg-[#FBF3DB] p-4 rounded-lg border border-[#F5E0B3] shadow-[0_1px_2px_rgba(15,15,15,0.04)] flex items-center justify-between">
                   <div>
-                    <span className="text-xs font-bold text-amber-800 uppercase tracking-wider block mb-1">
+                    <span className="text-xs font-semibold text-[#D9730D] uppercase tracking-wider block mb-1">
                       Cross-sell Hogar/Móvil
                     </span>
-                    <span className="text-2xl sm:text-3xl font-black text-amber-600">
+                    <span className="text-xl sm:text-2xl font-black text-[#D9730D]">
                       {overview.resumen.cross_sell_disponible.toLocaleString()}
                     </span>
                   </div>
-                  <div className="p-3 bg-amber-50 text-amber-600 rounded-xl border border-amber-100">
-                    <ArrowRightLeft className="w-6 h-6" />
+                  <div className="p-2.5 bg-white text-[#D9730D] rounded-md border border-[#F5E0B3]">
+                    <ArrowRightLeft className="w-5 h-5" />
                   </div>
                 </div>
 
                 {/* KPI 4: Riesgo Alto */}
-                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between border-l-4 border-l-red-500">
+                <div className="bg-[#FDEBEC] p-4 rounded-lg border border-[#F7C1C1] shadow-[0_1px_2px_rgba(15,15,15,0.04)] flex items-center justify-between">
                   <div>
-                    <span className="text-xs font-bold text-red-800 uppercase tracking-wider block mb-1">
+                    <span className="text-xs font-semibold text-[#EB5757] uppercase tracking-wider block mb-1">
                       Riesgo Alto Churn
                     </span>
-                    <span className="text-2xl sm:text-3xl font-black text-red-600">
+                    <span className="text-xl sm:text-2xl font-black text-[#EB5757]">
                       {overview.resumen.riesgo_alto.toLocaleString()}
                     </span>
                   </div>
-                  <div className="p-3 bg-red-50 text-red-600 rounded-xl border border-red-100">
-                    <ShieldAlert className="w-6 h-6" />
+                  <div className="p-2.5 bg-white text-[#EB5757] rounded-md border border-[#F7C1C1]">
+                    <ShieldAlert className="w-5 h-5" />
                   </div>
                 </div>
 
@@ -289,61 +289,61 @@ export default function PanoramaPage() {
 
               {/* SECTION 2: 3 Campaign Cards */}
               <div className="space-y-3">
-                <h2 className="text-lg font-black text-gray-900 tracking-tight flex items-center space-x-2">
-                  <Target className="w-5 h-5 text-[#0050B5]" />
+                <h2 className="text-base font-bold text-[#37352F] tracking-tight flex items-center space-x-2">
+                  <Target className="w-4 h-4 text-[#017BAE]" />
                   <span>Campañas Comerciales Priorizadas</span>
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {overview.campanas.map((campana) => {
                     const badgeStyles: Record<string, string> = {
-                      brecha_mt: 'bg-emerald-100 text-emerald-900 border-emerald-300',
-                      cross_sell: 'bg-amber-100 text-amber-900 border-amber-300',
-                      retencion: 'bg-red-100 text-red-900 border-red-300'
+                      brecha_mt: 'bg-[#EDF3EC] text-[#448361] border-[#CBE0D1]',
+                      cross_sell: 'bg-[#FBF3DB] text-[#D9730D] border-[#F5E0B3]',
+                      retencion: 'bg-[#FDEBEC] text-[#EB5757] border-[#F7C1C1]'
                     };
 
                     const cardAccents: Record<string, string> = {
-                      brecha_mt: 'hover:border-emerald-400 border-l-4 border-l-emerald-500',
-                      cross_sell: 'hover:border-amber-400 border-l-4 border-l-amber-500',
-                      retencion: 'hover:border-red-400 border-l-4 border-l-red-500'
+                      brecha_mt: 'hover:border-[#CBE0D1] border-l-4 border-l-[#448361]',
+                      cross_sell: 'hover:border-[#F5E0B3] border-l-4 border-l-[#D9730D]',
+                      retencion: 'hover:border-[#F7C1C1] border-l-4 border-l-[#EB5757]'
                     };
 
                     return (
                       <div
                         key={campana.id}
                         onClick={() => handleSelectCampaign(campana.id)}
-                        className={`bg-white rounded-2xl p-6 shadow-sm border border-gray-200 ${cardAccents[campana.id] || 'hover:border-blue-400'} transition-all cursor-pointer group flex flex-col justify-between space-y-4 hover:shadow-md`}
+                        className={`bg-white rounded-lg p-5 shadow-[0_1px_2px_rgba(15,15,15,0.04)] border border-[#E3E2E0] ${cardAccents[campana.id] || 'hover:border-[#017BAE]'} transition-all cursor-pointer group flex flex-col justify-between space-y-4 hover:bg-[#FAF9F6]`}
                       >
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className={`text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${badgeStyles[campana.id] || 'bg-blue-100 text-blue-900'}`}>
+                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${badgeStyles[campana.id] || 'bg-[#F1F1EF] text-[#37352F]'}`}>
                               {campana.id === 'brecha_mt' ? '🎯 Elegibles MT' : campana.id === 'cross_sell' ? '🔁 Cross-Sell' : '⚠️ Retención'}
                             </span>
-                            <span className="text-xs font-mono font-extrabold text-gray-400">
+                            <span className="text-[10px] font-mono font-semibold text-[#9B9A97]">
                               ID: {campana.id}
                             </span>
                           </div>
 
-                          <h3 className="text-lg font-black text-gray-900 group-hover:text-[#0050B5] transition-colors">
+                          <h3 className="text-base font-extrabold text-[#37352F] group-hover:text-[#017BAE] transition-colors">
                             {campana.nombre}
                           </h3>
 
-                          <p className="text-xs text-gray-600 font-medium leading-relaxed">
+                          <p className="text-xs text-[#787774] font-medium leading-relaxed">
                             {campana.descripcion}
                           </p>
                         </div>
 
-                        <div className="border-t border-gray-100 pt-4 flex items-center justify-between">
+                        <div className="border-t border-[#E3E2E0] pt-3 flex items-center justify-between">
                           <div>
-                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Total Clientes</span>
-                            <span className="text-xl font-extrabold text-blue-950">
+                            <span className="text-[10px] text-[#9B9A97] font-bold uppercase tracking-wider block">Total Clientes</span>
+                            <span className="text-lg font-black text-[#37352F]">
                               {campana.total.toLocaleString()}
                             </span>
                           </div>
 
-                          <button className="flex items-center space-x-1 text-xs font-extrabold text-white bg-[#0050B5] group-hover:bg-[#019BDE] px-3.5 py-2 rounded-lg shadow-sm transition-colors">
+                          <button className="flex items-center space-x-1 text-xs font-semibold text-white bg-[#37352F] group-hover:bg-[#017BAE] px-3 py-1.5 rounded-md shadow-sm transition-colors">
                             <span>Ver Lista</span>
-                            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                            <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                           </button>
                         </div>
                       </div>

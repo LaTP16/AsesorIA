@@ -17,8 +17,8 @@ from generar_explicacion import generar_explicacion
 load_dotenv()
 
 app = FastAPI(
-    title="Movistar IQ - API Backend",
-    description="API para la herramienta interna de asesores comerciales Movistar (Cola de Prioridad, Panorama General, Inferencia y Copiloto IA)",
+    title="AsesorIA - API Backend",
+    description="API para la herramienta interna de asesores comerciales AsesorIA (Cola de Prioridad, Panorama General, Inferencia y Copiloto IA)",
     version="1.3.0"
 )
 
@@ -69,7 +69,7 @@ class ChatAsesorInput(BaseModel):
 @app.get("/")
 def read_root():
     return {
-        "app": "Movistar IQ Backend API",
+        "app": "AsesorIA Backend API",
         "status": "online",
         "endpoints": [
             "GET /cola-prioridad",
@@ -167,11 +167,7 @@ def get_panorama_general():
         cross_sell_cnt = int((df_cli['gap_hogar_movil'] == True).sum())
         riesgo_alto_cnt = int((df_cola['riesgo'] == 'alto').sum())
 
-        fatiga_present = bool('fatiga_oferta' in df_cli.columns)
-        if fatiga_present:
-            retencion_cnt = int(((df_cola['riesgo'] == 'alto') | (df_cli['fatiga_oferta'] == True)).sum())
-        else:
-            retencion_cnt = riesgo_alto_cnt
+        retencion_cnt = int(df_cola['riesgo'].isin(['alto', 'medio']).sum())
 
         return {
             "resumen": {
@@ -196,7 +192,7 @@ def get_panorama_general():
                 {
                     "id": "retencion",
                     "nombre": "Riesgo de Fuga",
-                    "descripcion": "Riesgo alto o fatiga de oferta sin conversión",
+                    "descripcion": "Clientes con riesgo de fuga alto o medio",
                     "total": retencion_cnt
                 }
             ]
@@ -246,13 +242,17 @@ def get_campana_detalle(
         elif campana_clean == 'cross_sell':
             sub = df_merged[df_merged.get('gap_hogar_movil', False) == True]
         elif campana_clean == 'retencion':
-            is_fatiga = df_merged.get('fatiga_oferta', False) == True
-            is_alto = df_merged['riesgo'] == 'alto'
-            sub = df_merged[is_alto | is_fatiga]
+            sub = df_merged[df_merged['riesgo'].isin(['alto', 'medio'])]
         else:
             sub = df_merged
 
-        sub_sorted = sub.sort_values(by='score_aceptacion', ascending=False)
+        if campana_clean == 'retencion':
+            riesgo_map = {'alto': 2, 'medio': 1, 'bajo': 0}
+            sub = sub.copy()
+            sub['riesgo_rank'] = sub['riesgo'].map(riesgo_map)
+            sub_sorted = sub.sort_values(by=['riesgo_rank', 'score_aceptacion'], ascending=[False, False])
+        else:
+            sub_sorted = sub.sort_values(by='score_aceptacion', ascending=False)
         if limit and limit > 0:
             sub_sorted = sub_sorted.head(limit)
 
@@ -433,7 +433,7 @@ def chat_asesor(datos: ChatAsesorInput):
             historial_str = "\n".join(turnos)
 
         system_prompt = f"""
-Eres el "Copiloto Movistar IQ", un asistente experto en ventas de telecomunicaciones de Movistar.
+Eres el "Copiloto AsesorIA", un asistente experto en ventas de telecomunicaciones de Movistar.
 Estás apoyando en tiempo real a un asesor comercial que está atendiendo a este cliente:
 
 INFORMACIÓN CONTEXTUAL DEL CLIENTE:
@@ -546,7 +546,7 @@ def _generar_respuesta_chat_respaldo(
 
     # 1. Saludos
     if any(w in p_lower for w in ['hola', 'buenas', 'saludos', 'quien eres', 'quién eres', 'que haces', 'qué haces']):
-        return f"👋 **¡Hola! Soy tu Copiloto Movistar IQ**.\n- Estoy listo para ayudarte a cerrar la recomendación de **{nombre_oferta}** para el cliente **{cliente_id}**.\n- Puedo darte argumentos de precio, beneficios de conectividad o estrategias para riesgo {riesgo.upper()}. ¿En qué te ayudo?"
+        return f"👋 **¡Hola! Soy tu Copiloto AsesorIA**.\n- Estoy listo para ayudarte a cerrar la recomendación de **{nombre_oferta}** para el cliente **{cliente_id}**.\n- Puedo darte argumentos de precio, beneficios de conectividad o estrategias para riesgo {riesgo.upper()}. ¿En qué te ayudo?"
 
     # 2. Guión / Script / Pitch de venta
     if any(w in p_lower for w in ['guion', 'guión', 'script', 'speech', 'pitch', 'argumento', 'decirle', 'presentar']):

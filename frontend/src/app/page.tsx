@@ -117,40 +117,40 @@ export default function PriorityQueuePage() {
   }, [clientes]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4">
       
-      {/* Top Banner / Time-Pressure Work Context */}
-      <div className="bg-[#002E66] text-white p-4 sm:p-5 rounded-xl shadow-md border border-[#0050B5]/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      {/* Top Banner / Notion Callout Style Header */}
+      <div className="bg-white text-[#37352F] p-4 sm:p-5 rounded-lg shadow-[0_1px_2px_rgba(15,15,15,0.06)] border border-[#E3E2E0] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-blue-200 text-xs font-semibold uppercase tracking-wider mb-1">
-            <Zap className="w-4 h-4 text-[#019BDE]" />
+          <div className="flex items-center space-x-1.5 text-[#017BAE] text-xs font-semibold uppercase tracking-wider mb-1">
+            <Zap className="w-4 h-4 text-[#017BAE]" />
             <span>Motor Priorización IQ • API Conectada</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-[#37352F] tracking-tight">
             Cola de Prioridad Comercial
           </h1>
-          <p className="text-xs sm:text-sm text-blue-100 mt-0.5">
+          <p className="text-xs sm:text-sm text-[#787774] mt-0.5">
             Ordenados de mayor a menor urgencia. Selecciona un cliente para ver su oferta recomendada y guión de atención.
           </p>
         </div>
 
         {/* Quick Advisor Metrics (Global Totals from /cola-prioridad/resumen) */}
-        <div className="flex items-center space-x-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-          <div className="bg-red-950/60 border border-red-500/40 rounded-lg px-3 py-2 text-center min-w-[100px]">
-            <span className="text-[10px] text-red-200 uppercase font-bold tracking-wider block">Alta Urgencia</span>
-            <span className="text-xl font-extrabold text-red-400">
+        <div className="flex items-center space-x-2.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+          <div className="bg-[#FDEBEC] border border-[#F7C1C1] rounded-md px-3 py-2 text-center min-w-[100px]">
+            <span className="text-[10px] text-[#EB5757] uppercase font-bold tracking-wider block">Alta Urgencia</span>
+            <span className="text-lg font-black text-[#EB5757]">
               {resumen ? resumen.alta.toLocaleString() : counts.alta}
             </span>
           </div>
-          <div className="bg-amber-950/60 border border-amber-500/40 rounded-lg px-3 py-2 text-center min-w-[100px]">
-            <span className="text-[10px] text-amber-200 uppercase font-bold tracking-wider block">Media Urgencia</span>
-            <span className="text-xl font-extrabold text-amber-400">
+          <div className="bg-[#FBF3DB] border border-[#F5E0B3] rounded-md px-3 py-2 text-center min-w-[100px]">
+            <span className="text-[10px] text-[#D9730D] uppercase font-bold tracking-wider block">Media Urgencia</span>
+            <span className="text-lg font-black text-[#D9730D]">
               {resumen ? resumen.media.toLocaleString() : counts.media}
             </span>
           </div>
-          <div className="bg-blue-950/60 border border-blue-400/40 rounded-lg px-3 py-2 text-center min-w-[100px]">
-            <span className="text-[10px] text-blue-200 uppercase font-bold tracking-wider block">Total Pendientes</span>
-            <span className="text-xl font-extrabold text-white">
+          <div className="bg-[#F1F1EF] border border-[#E3E2E0] rounded-md px-3 py-2 text-center min-w-[100px]">
+            <span className="text-[10px] text-[#787774] uppercase font-bold tracking-wider block">Total Pendientes</span>
+            <span className="text-lg font-black text-[#37352F]">
               {resumen ? resumen.total_clientes.toLocaleString() : counts.todos}
             </span>
           </div>
@@ -158,22 +158,22 @@ export default function PriorityQueuePage() {
       </div>
 
       {/* Controls Bar: Search & Filters */}
-      <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <div className="bg-white p-3 rounded-lg shadow-[0_1px_2px_rgba(15,15,15,0.04)] border border-[#E3E2E0] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         
         {/* Search Bar */}
         <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#9B9A97]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar por ID (ej. CLI002483), Nombre o Motivo..."
-            className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#019BDE] focus:bg-white text-gray-900 placeholder-gray-500"
+            className="w-full pl-9 pr-4 py-1.5 text-xs sm:text-sm bg-[#F7F6F3] border border-[#E3E2E0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#017BAE]/20 focus:bg-white text-[#37352F] placeholder-[#9B9A97]"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 font-bold"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#9B9A97] hover:text-[#37352F] font-bold"
             >
               ✕
             </button>
@@ -182,16 +182,16 @@ export default function PriorityQueuePage() {
 
         {/* Priority Filter Chips */}
         <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 md:pb-0">
-          <span className="text-xs font-semibold text-gray-500 mr-1 hidden lg:inline flex items-center">
-            <Filter className="w-3.5 h-3.5 mr-1 text-gray-400" /> Filtrar:
+          <span className="text-xs font-semibold text-[#787774] mr-1 hidden lg:inline-flex items-center">
+            <Filter className="w-3.5 h-3.5 mr-1 text-[#9B9A97]" /> Filtrar:
           </span>
           
           <button
             onClick={() => setSelectedFilter('todos')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
               selectedFilter === 'todos'
-                ? 'bg-[#0050B5] text-white shadow-sm'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-[#37352F] text-white shadow-sm'
+                : 'bg-[#F1F1EF] text-[#787774] hover:bg-[#EFEFEF] border border-[#E3E2E0]'
             }`}
           >
             Todas ({counts.todos})
@@ -199,79 +199,80 @@ export default function PriorityQueuePage() {
 
           <button
             onClick={() => setSelectedFilter('alta')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1 ${
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all flex items-center space-x-1 border ${
               selectedFilter === 'alta'
-                ? 'bg-red-600 text-white shadow-sm'
-                : 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
+                ? 'bg-[#EB5757] text-white border-[#EB5757] shadow-sm'
+                : 'bg-[#FDEBEC] text-[#EB5757] border-[#F7C1C1] hover:bg-[#FADBDC]'
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-red-600"></span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#EB5757]"></span>
             <span>Alta ({counts.alta})</span>
           </button>
 
           <button
             onClick={() => setSelectedFilter('media')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1 ${
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all flex items-center space-x-1 border ${
               selectedFilter === 'media'
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
+                ? 'bg-[#D9730D] text-white border-[#D9730D] shadow-sm'
+                : 'bg-[#FBF3DB] text-[#D9730D] border-[#F5E0B3] hover:bg-[#F7EBBF]'
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D9730D]"></span>
             <span>Media ({counts.media})</span>
           </button>
 
           <button
             onClick={() => setSelectedFilter('baja')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1 ${
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all flex items-center space-x-1 border ${
               selectedFilter === 'baja'
-                ? 'bg-gray-700 text-white shadow-sm'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-[#448361] text-white border-[#448361] shadow-sm'
+                : 'bg-[#EDF3EC] text-[#448361] border-[#CBE0D1] hover:bg-[#DDEBDB]'
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-gray-500"></span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#448361]"></span>
             <span>Baja ({counts.baja})</span>
           </button>
 
           {/* Sort Selector */}
-          <div className="ml-auto pl-2 border-l border-gray-200 flex items-center">
+          <div className="ml-auto pl-2 border-l border-[#E3E2E0] flex items-center">
             <button
               onClick={() => setSortBy(sortBy === 'prioridad' ? 'score' : 'prioridad')}
-              className="px-2.5 py-1.5 text-xs text-gray-600 hover:text-gray-900 bg-gray-50 border border-gray-200 rounded-lg flex items-center space-x-1 font-medium"
+              className="px-2.5 py-1 text-xs text-[#787774] hover:text-[#37352F] bg-[#F7F6F3] border border-[#E3E2E0] rounded-md flex items-center space-x-1 font-medium"
               title="Cambiar criterio de ordenación"
             >
-              <ArrowUpDown className="w-3.5 h-3.5 text-blue-600" />
+              <ArrowUpDown className="w-3.5 h-3.5 text-[#017BAE]" />
               <span className="hidden sm:inline">Orden:</span>
-              <span className="font-bold text-blue-700">
+              <span className="font-bold text-[#017BAE]">
                 {sortBy === 'prioridad' ? 'Prioridad' : 'Aceptación'}
               </span>
             </button>
           </div>
         </div>
+
       </div>
 
       {/* Pagination & Scope Indicator */}
-      <div className="flex items-center justify-between text-xs text-gray-500 font-semibold px-1">
+      <div className="flex items-center justify-between text-xs text-[#787774] font-medium px-1">
         <span>
-          Mostrando los <strong className="text-gray-900">{filteredClients.length}</strong> prioritarios de <strong className="text-gray-900">{resumen ? resumen.total_clientes.toLocaleString() : '100,000'}</strong> clientes en cartera
+          Mostrando los <strong className="text-[#37352F] font-bold">{filteredClients.length}</strong> prioritarios de <strong className="text-[#37352F] font-bold">{resumen ? resumen.total_clientes.toLocaleString() : '100,000'}</strong> clientes en cartera
         </span>
         {resumen && (
-          <span className="hidden sm:inline text-gray-400">
-            Riesgo Alto Real: <strong className="text-red-600 font-bold">{resumen.riesgo_alto_real}</strong> clientes
+          <span className="hidden sm:inline text-[#9B9A97]">
+            Riesgo Alto Real: <strong className="text-[#EB5757] font-bold">{resumen.riesgo_alto_real}</strong> clientes
           </span>
         )}
       </div>
 
       {/* Error Banner if API Server Disconnected */}
       {errorMsg && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-red-800 text-xs sm:text-sm font-semibold">
+        <div className="bg-[#FDEBEC] border border-[#F7C1C1] rounded-lg p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-[#EB5757] text-xs sm:text-sm font-semibold">
           <div className="flex items-center space-x-2">
-            <ServerOff className="w-5 h-5 text-red-600 flex-shrink-0" />
+            <ServerOff className="w-5 h-5 text-[#EB5757] flex-shrink-0" />
             <span>{errorMsg}</span>
           </div>
           <button
             onClick={fetchCola}
-            className="flex items-center space-x-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg font-bold transition-colors text-xs flex-shrink-0"
+            className="flex items-center space-x-1 bg-[#EB5757] hover:bg-[#D84545] text-white px-3 py-1.5 rounded-md font-bold transition-colors text-xs flex-shrink-0"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Reintentar</span>
@@ -281,24 +282,24 @@ export default function PriorityQueuePage() {
 
       {/* Loading Skeleton */}
       {loading ? (
-        <div className="bg-white p-8 text-center rounded-xl border border-gray-200 space-y-3">
-          <div className="w-8 h-8 rounded-full border-2 border-blue-200 border-t-[#019BDE] animate-spin mx-auto"></div>
-          <p className="text-sm font-bold text-blue-900">Cargando Cola de Prioridad desde API...</p>
+        <div className="bg-white p-8 text-center rounded-lg border border-[#E3E2E0] space-y-3">
+          <div className="w-7 h-7 rounded-full border-2 border-[#C8E3ED] border-t-[#017BAE] animate-spin mx-auto"></div>
+          <p className="text-xs font-bold text-[#37352F]">Cargando Cola de Prioridad desde API...</p>
         </div>
       ) : (
         /* Client List Queue Container */
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {filteredClients.length === 0 ? (
-            <div className="bg-white p-8 text-center rounded-xl border border-gray-200 space-y-2">
-              <AlertOctagon className="w-10 h-10 text-gray-400 mx-auto" />
-              <p className="font-bold text-gray-800">No se encontraron clientes con esos filtros.</p>
-              <p className="text-xs text-gray-500">Prueba ajustando el texto de búsqueda o selecciones de filtro.</p>
+            <div className="bg-white p-8 text-center rounded-lg border border-[#E3E2E0] space-y-2">
+              <AlertOctagon className="w-8 h-8 text-[#9B9A97] mx-auto" />
+              <p className="font-bold text-[#37352F] text-sm">No se encontraron clientes con esos filtros.</p>
+              <p className="text-xs text-[#787774]">Prueba ajustando el texto de búsqueda o selecciones de filtro.</p>
               <button
                 onClick={() => {
                   setSearchQuery('');
                   setSelectedFilter('todos');
                 }}
-                className="mt-2 text-xs font-bold text-[#019BDE] hover:underline"
+                className="mt-2 text-xs font-bold text-[#017BAE] hover:underline"
               >
                 Restablecer filtros
               </button>
@@ -309,81 +310,85 @@ export default function PriorityQueuePage() {
               const isMed = c.prioridad === 'media';
 
               const borderAccentClass = isHigh
-                ? 'border-l-8 border-l-red-600'
+                ? 'border-l-4 border-l-[#EB5757]'
                 : isMed
-                ? 'border-l-8 border-l-amber-500'
-                : 'border-l-8 border-l-gray-400';
+                ? 'border-l-4 border-l-[#D9730D]'
+                : 'border-l-4 border-l-[#CBE0D1]';
 
               const scorePercent = Math.round(c.score_aceptacion * 100);
 
               const churnColorClass =
                 c.riesgo_churn === 'alto'
-                  ? 'bg-red-100 text-red-800 border-red-200'
+                  ? 'bg-[#FDEBEC] text-[#EB5757] border-[#F7C1C1]'
                   : c.riesgo_churn === 'medio'
-                  ? 'bg-amber-100 text-amber-800 border-amber-200'
-                  : 'bg-green-100 text-green-800 border-green-200';
+                  ? 'bg-[#FBF3DB] text-[#D9730D] border-[#F5E0B3]'
+                  : 'bg-[#EDF3EC] text-[#448361] border-[#CBE0D1]';
 
               return (
                 <Link
                   key={c.cliente_id}
                   href={`/cliente/${c.cliente_id}`}
-                  className={`group block bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-200 ${borderAccentClass} transition-all duration-150 overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#019BDE]`}
+                  className={`group block bg-white rounded-lg shadow-[0_1px_2px_rgba(15,15,15,0.04)] hover:bg-[#FAF9F6] border border-[#E3E2E0] ${borderAccentClass} transition-all duration-150 overflow-hidden focus:outline-none`}
                 >
-                  <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     
                     {/* Left Column: ID, Display Name, Priority Badge, Single-line Reason */}
-                    <div className="flex-1 space-y-2">
+                    <div className="flex-1 space-y-1.5">
                       
                       {/* Header Row: ID + Display Name + Badge */}
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-mono text-xs font-black text-blue-900 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                        <span className="font-mono text-xs font-bold text-[#37352F] bg-[#F1F1EF] px-2 py-0.5 rounded border border-[#E3E2E0]">
                           {c.cliente_id}
                         </span>
 
-                        <h2 className="text-base sm:text-lg font-extrabold text-gray-900 group-hover:text-[#0050B5] transition-colors">
+                        <h2 className="text-sm sm:text-base font-extrabold text-[#37352F] group-hover:text-[#017BAE] transition-colors">
                           {c.nombre_display}
                         </h2>
 
                         <PriorityBadge prioridad={c.prioridad} size="sm" />
 
                         <span
-                          className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${churnColorClass}`}
+                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${churnColorClass}`}
                         >
-                          Churn: {c.riesgo_churn.toUpperCase()}
+                          {c.riesgo_churn === 'alto'
+                            ? 'Fuga: ALTA'
+                            : c.riesgo_churn === 'medio'
+                            ? 'Fuga: MEDIA'
+                            : 'Cliente Estable (Sin Fuga)'}
                         </span>
                       </div>
 
-                      {/* Requirement: 1-line Brief Reason */}
-                      <p className="text-sm font-semibold text-gray-800 flex items-center gap-1.5 line-clamp-1">
-                        <span className="text-xs text-blue-600 font-bold">Motivo:</span>
-                        <span>{c.motivo_prioridad}</span>
+                      {/* 1-line Brief Reason */}
+                      <p className="text-xs font-medium text-[#787774] flex items-center gap-1.5 line-clamp-1">
+                        <span className="text-xs text-[#017BAE] font-bold">Motivo:</span>
+                        <span className="text-[#37352F]">{c.motivo_prioridad}</span>
                       </p>
 
                     </div>
 
                     {/* Right Column: Acceptance Score & Tap-to-detail Button */}
-                    <div className="flex items-center justify-between sm:justify-end space-x-4 border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100">
+                    <div className="flex items-center justify-between sm:justify-end space-x-4 border-t sm:border-t-0 pt-2.5 sm:pt-0 border-[#E3E2E0]">
                       
                       {/* Acceptance Score Progress Indicator */}
-                      <div className="flex flex-col items-start sm:items-end min-w-[120px]">
+                      <div className="flex flex-col items-start sm:items-end min-w-[110px]">
                         <div className="flex items-center space-x-1">
-                          <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-                          <span className="text-xs font-bold text-gray-600">Aceptación:</span>
-                          <span className="text-sm font-black text-emerald-700">{scorePercent}%</span>
+                          <TrendingUp className="w-3.5 h-3.5 text-[#448361]" />
+                          <span className="text-xs font-bold text-[#787774]">Aceptación:</span>
+                          <span className="text-xs font-black text-[#448361]">{scorePercent}%</span>
                         </div>
                         
-                        <div className="w-28 bg-gray-200 h-2 rounded-full mt-1 overflow-hidden">
+                        <div className="w-24 bg-[#F1F1EF] h-1.5 rounded-full mt-1 overflow-hidden border border-[#E3E2E0]">
                           <div
-                            className="bg-emerald-500 h-full rounded-full transition-all duration-300"
+                            className="bg-[#448361] h-full rounded-full transition-all duration-300"
                             style={{ width: `${scorePercent}%` }}
                           ></div>
                         </div>
                       </div>
 
-                      {/* Action Arrow Button */}
-                      <div className="flex items-center space-x-1 text-sm font-bold text-white bg-[#0050B5] group-hover:bg-[#019BDE] px-3.5 py-2 rounded-lg shadow-sm transition-colors min-w-[120px] justify-center">
+                      {/* Action Button */}
+                      <div className="flex items-center space-x-1 text-xs font-semibold text-white bg-[#37352F] group-hover:bg-[#017BAE] px-3 py-1.5 rounded-md shadow-sm transition-colors min-w-[100px] justify-center">
                         <span>Atender</span>
-                        <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                       </div>
 
                     </div>

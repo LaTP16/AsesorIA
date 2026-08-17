@@ -105,7 +105,7 @@ export default function ClientDetailPage({ params }: ClientDetailProps) {
           cliente_id: clientData.cliente_id,
           oferta_id: clientData.oferta_id || clientData.oferta_recomendada,
           resultado: actionLabel,
-          notas_asesor: `Registrado desde Ficha de Recomendación Movistar IQ`
+          notas_asesor: `Registrado desde Ficha de Recomendación AsesorIA`
         })
       });
     } catch (err) {
@@ -148,7 +148,7 @@ export default function ClientDetailPage({ params }: ClientDetailProps) {
           {is404 ? 'Cliente no encontrado' : 'Error de Conexión'}
         </h1>
         <p className="text-sm text-gray-600 font-medium">
-          {errorMsg || 'Ocurrió un problema de comunicación con el backend de Movistar IQ.'}
+          {errorMsg || 'Ocurrió un problema de comunicación con el backend de AsesorIA.'}
         </p>
         <div className="flex items-center justify-center space-x-3 pt-2">
           {!is404 && (
@@ -178,31 +178,31 @@ export default function ClientDetailPage({ params }: ClientDetailProps) {
     switch (tag) {
       case 'elegible_mt':
         return (
-          <span key={tag} className="inline-flex items-center space-x-1.5 bg-emerald-100 text-emerald-900 border border-emerald-300 px-3 py-1 rounded-full text-xs font-extrabold shadow-sm">
+          <span key={tag} className="inline-flex items-center space-x-1.5 bg-[#EDF3EC] text-[#448361] border border-[#CBE0D1] px-2.5 py-0.5 rounded-md text-xs font-semibold">
             <span>🎯 Elegible Movistar Total</span>
           </span>
         );
       case 'contactado_3x':
         return (
-          <span key={tag} className="inline-flex items-center space-x-1.5 bg-blue-100 text-blue-900 border border-blue-300 px-3 py-1 rounded-full text-xs font-extrabold shadow-sm">
+          <span key={tag} className="inline-flex items-center space-x-1.5 bg-[#E8F3F7] text-[#017BAE] border border-[#C8E3ED] px-2.5 py-0.5 rounded-md text-xs font-semibold">
             <span>🔁 Ya contactado 3 veces este mes</span>
           </span>
         );
       case 'riesgo_churn_alto':
         return (
-          <span key={tag} className="inline-flex items-center space-x-1.5 bg-red-100 text-red-900 border border-red-300 px-3 py-1 rounded-full text-xs font-extrabold shadow-sm">
-            <span>⚠️ Riesgo de fuga</span>
+          <span key={tag} className="inline-flex items-center space-x-1.5 bg-[#FDEBEC] text-[#EB5757] border border-[#F7C1C1] px-2.5 py-0.5 rounded-md text-xs font-semibold">
+            <span>⚠️ Riesgo de fuga alto</span>
           </span>
         );
       case 'riesgo_churn_medio':
         return (
-          <span key={tag} className="inline-flex items-center space-x-1.5 bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1 rounded-full text-xs font-extrabold shadow-sm">
+          <span key={tag} className="inline-flex items-center space-x-1.5 bg-[#FBF3DB] text-[#D9730D] border border-[#F5E0B3] px-2.5 py-0.5 rounded-md text-xs font-semibold">
             <span>⚠️ Riesgo de fuga medio</span>
           </span>
         );
       default:
         return (
-          <span key={tag} className="inline-flex items-center space-x-1 bg-gray-100 text-gray-800 border border-gray-300 px-2.5 py-1 rounded-full text-xs font-bold">
+          <span key={tag} className="inline-flex items-center space-x-1 bg-[#F1F1EF] text-[#787774] border border-[#E3E2E0] px-2 py-0.5 rounded-md text-xs font-medium">
             <span>#{tag}</span>
           </span>
         );
@@ -214,33 +214,33 @@ export default function ClientDetailPage({ params }: ClientDetailProps) {
       
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#001D42] text-white px-6 py-3 rounded-2xl shadow-2xl border-2 border-emerald-400 flex items-center space-x-3 animate-in fade-in slide-in-from-top-4 duration-150">
-          <CheckCircle2 className="w-6 h-6 text-emerald-400 flex-shrink-0" />
-          <span className="font-extrabold text-sm sm:text-base">{toastMessage}</span>
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#37352F] text-white px-5 py-2.5 rounded-lg shadow-xl border border-emerald-400 flex items-center space-x-2.5 animate-in fade-in slide-in-from-top-4 duration-150">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+          <span className="font-bold text-xs sm:text-sm">{toastMessage}</span>
         </div>
       )}
 
-      {/* Main Grid: 2 Columns on Laptop/Desktop (Col 1: Main Cockpit, Col 2: Copiloto Chat Sidebar in Red Box) */}
+      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
         
-        {/* Left Column: Main Client Recommendation Cockpit (lg:col-span-7 or lg:col-span-8) */}
-        <div className="lg:col-span-7 xl:col-span-8 space-y-4 md:space-y-5">
+        {/* Left Column: Main Client Recommendation Cockpit */}
+        <div className="lg:col-span-7 xl:col-span-8 space-y-4">
           
           {/* Top Header Row */}
-          <div className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-gray-200 shadow-sm">
+          <div className="flex items-center justify-between bg-white px-4 py-3 rounded-lg border border-[#E3E2E0] shadow-[0_1px_2px_rgba(15,15,15,0.04)]">
             <div className="flex items-center space-x-3">
               <Link
                 href="/"
-                className="p-1.5 rounded-lg text-gray-500 hover:text-blue-900 hover:bg-gray-100 transition-colors"
+                className="p-1.5 rounded-md text-[#787774] hover:text-[#37352F] hover:bg-[#F1F0EC] transition-colors"
                 title="Volver a la Cola"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div className="flex items-center space-x-2">
-                <span className="font-mono text-xs font-black text-blue-900 bg-blue-100 px-2 py-0.5 rounded border border-blue-200">
+                <span className="font-mono text-xs font-bold text-[#37352F] bg-[#F1F1EF] px-2 py-0.5 rounded border border-[#E3E2E0]">
                   {clientData.cliente_id}
                 </span>
-                <h1 className="text-lg md:text-xl font-extrabold text-gray-900">
+                <h1 className="text-base md:text-lg font-extrabold text-[#37352F]">
                   {clientData.nombre_display}
                 </h1>
               </div>
@@ -250,63 +250,45 @@ export default function ClientDetailPage({ params }: ClientDetailProps) {
           </div>
 
           {/* Main Block */}
-          <div className={`rounded-2xl p-5 md:p-6 shadow-md border transition-all ${
-            clientData.es_movistar_total
-              ? 'bg-gradient-to-br from-[#002E66] via-[#003B80] to-[#001D42] text-white border-emerald-400/40 ring-1 ring-emerald-500/30'
-              : 'bg-white text-gray-900 border-gray-200'
-          }`}>
+          <div className="bg-white rounded-lg p-5 md:p-6 shadow-[0_1px_2px_rgba(15,15,15,0.06)] border border-[#E3E2E0] text-[#37352F]">
             
             <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-              <span className={`text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+              <span className={`text-xs font-bold px-2.5 py-0.5 rounded-md border ${
                 clientData.es_movistar_total
-                  ? 'bg-emerald-500 text-emerald-950 font-black flex items-center space-x-1 shadow-sm'
-                  : 'bg-blue-100 text-blue-900 font-bold'
+                  ? 'bg-[#E8F3F7] text-[#017BAE] border-[#C8E3ED] flex items-center space-x-1'
+                  : 'bg-[#F1F1EF] text-[#787774] border-[#E3E2E0]'
               }`}>
                 {clientData.es_movistar_total ? '✨ Oferta Destacada Movistar Total' : 'Recomendación IQ'}
               </span>
 
-              <div className="flex items-center space-x-1 text-xs font-bold">
-                <span className={clientData.es_movistar_total ? 'text-blue-200' : 'text-gray-500'}>
-                  Probabilidad Aceptación:
-                </span>
-                <span className={`text-sm font-black ${
-                  clientData.es_movistar_total ? 'text-emerald-400' : 'text-emerald-700'
-                }`}>
-                  {scorePercent}%
-                </span>
+              <div className="flex items-center space-x-1 text-xs font-semibold">
+                <span className="text-[#787774]">Probabilidad Aceptación:</span>
+                <span className="text-sm font-black text-[#448361]">{scorePercent}%</span>
               </div>
             </div>
 
             {/* Big Offer Name */}
             <div className="space-y-3">
-              <h2 className={`text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-none ${
-                clientData.es_movistar_total
-                  ? 'text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-200 to-amber-200 drop-shadow-sm'
-                  : 'text-blue-950'
-              }`}>
+              <h2 className="text-2xl md:text-3xl font-extrabold text-[#37352F] tracking-tight leading-snug">
                 {clientData.oferta_recomendada}
               </h2>
 
               {/* Visual Probability Gauge Bar */}
-              <div className="w-full bg-gray-200/40 h-3 rounded-full overflow-hidden p-0.5 border border-white/20">
+              <div className="w-full bg-[#F1F1EF] h-2.5 rounded-full overflow-hidden p-0.5 border border-[#E3E2E0]">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${
                     scorePercent >= 75
-                      ? 'bg-gradient-to-r from-emerald-500 to-emerald-300'
+                      ? 'bg-[#448361]'
                       : scorePercent >= 50
-                      ? 'bg-gradient-to-r from-amber-500 to-amber-300'
-                      : 'bg-gradient-to-r from-gray-500 to-gray-400'
+                      ? 'bg-[#D9730D]'
+                      : 'bg-[#787774]'
                   }`}
                   style={{ width: `${scorePercent}%` }}
                 ></div>
               </div>
 
               {/* Natural Language Short Explanation */}
-              <div className={`p-3.5 rounded-xl text-sm font-medium leading-relaxed ${
-                clientData.es_movistar_total
-                  ? 'bg-blue-950/60 border border-blue-400/20 text-blue-100'
-                  : 'bg-gray-50 border border-gray-200 text-gray-800'
-              }`}>
+              <div className="p-3.5 rounded-md bg-[#FAF9F6] border border-[#E3E2E0] text-xs sm:text-sm font-medium leading-relaxed text-[#37352F]">
                 <p className="italic">
                   "{clientData.motivo}"
                 </p>
@@ -316,42 +298,42 @@ export default function ClientDetailPage({ params }: ClientDetailProps) {
           </div>
 
           {/* Contextual Badges Row */}
-          <div className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm space-y-1.5">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-gray-500 block">
+          <div className="bg-white p-3.5 rounded-lg border border-[#E3E2E0] shadow-[0_1px_2px_rgba(15,15,15,0.04)] space-y-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#787774] block">
               Contexto del Cliente
             </span>
             <div className="flex flex-wrap items-center gap-2">
               {clientData.badges && clientData.badges.length > 0 ? (
                 clientData.badges.map((b) => renderBadge(b))
               ) : (
-                <span className="text-xs text-gray-500">Sin etiquetas adicionales</span>
+                <span className="text-xs text-[#9B9A97]">Sin etiquetas adicionales</span>
               )}
             </div>
           </div>
 
           {/* "Cómo ofrecerla" Sub-block with Advisor Pitch Script */}
           <div className="space-y-3">
-            <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-xl flex items-center space-x-3 shadow-sm">
-              <Lightbulb className="w-5 h-5 text-amber-600 flex-shrink-0" />
-              <div className="text-xs md:text-sm font-semibold text-amber-900">
-                <span className="font-extrabold text-amber-950 uppercase tracking-wide mr-1">
+            <div className="bg-[#FBF3DB] border border-[#F5E0B3] p-3 rounded-lg flex items-center space-x-3 shadow-none">
+              <Lightbulb className="w-4 h-4 text-[#D9730D] flex-shrink-0" />
+              <div className="text-xs font-semibold text-[#D9730D]">
+                <span className="font-extrabold uppercase tracking-wide mr-1">
                   💡 Tip de Atención:
                 </span>
                 <span>Canal sugerido: </span>
-                <span className="font-extrabold text-amber-950">{clientData.canal_sugerido}</span>
+                <span className="font-extrabold text-[#37352F]">{clientData.canal_sugerido}</span>
                 <span className="mx-1 font-bold">•</span>
                 <span>Momento sugerido: </span>
-                <span className="font-extrabold text-amber-950">{clientData.momento_sugerido}</span>
+                <span className="font-extrabold text-[#37352F]">{clientData.momento_sugerido}</span>
               </div>
             </div>
 
             {clientData.guion && (
-              <div className="bg-blue-950 text-white p-4 rounded-xl border border-blue-800 space-y-1.5 shadow-sm">
-                <span className="text-xs font-black uppercase tracking-wider text-blue-300 flex items-center space-x-1">
-                  <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <div className="bg-white text-[#37352F] p-4 rounded-lg border border-[#E3E2E0] space-y-1.5 shadow-[0_1px_2px_rgba(15,15,15,0.04)]">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-[#017BAE] flex items-center space-x-1">
+                  <Zap className="w-3.5 h-3.5 text-[#D9730D]" />
                   <span>Guión de Venta Recomendado (Lectura en Voz Alta)</span>
                 </span>
-                <p className="text-xs sm:text-sm font-medium text-blue-50 italic leading-relaxed">
+                <p className="text-xs sm:text-sm font-medium text-[#37352F] italic leading-relaxed bg-[#FAF9F6] p-3 rounded-md border border-[#E3E2E0]">
                   "{clientData.guion}"
                 </p>
               </div>
@@ -359,36 +341,36 @@ export default function ClientDetailPage({ params }: ClientDetailProps) {
           </div>
 
           {/* Three Action Buttons of Equal Prominence */}
-          <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-2">
-            <span className="text-xs font-extrabold text-gray-500 uppercase tracking-wider block text-center md:text-left">
+          <div className="bg-white p-4 rounded-lg border border-[#E3E2E0] shadow-[0_1px_2px_rgba(15,15,15,0.04)] space-y-2">
+            <span className="text-xs font-bold text-[#787774] uppercase tracking-wider block text-center md:text-left">
               Acción Comercial Inmediata
             </span>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
               <button
                 disabled={submittingAction}
                 onClick={() => handleAction('mostrada')}
-                className="w-full flex items-center justify-center space-x-2 bg-[#0050B5] hover:bg-[#019BDE] text-white font-extrabold py-3.5 px-4 rounded-xl shadow transition-all transform active:scale-95 text-sm md:text-base border border-blue-700 disabled:opacity-50"
+                className="w-full flex items-center justify-center space-x-2 bg-[#37352F] hover:bg-[#504E48] text-white font-bold py-2.5 px-4 rounded-md shadow-sm transition-colors text-xs sm:text-sm border border-[#37352F] disabled:opacity-50"
               >
-                <Eye className="w-5 h-5" />
+                <Eye className="w-4 h-4" />
                 <span>Oferta mostrada</span>
               </button>
 
               <button
                 disabled={submittingAction}
                 onClick={() => handleAction('aceptada')}
-                className="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3.5 px-4 rounded-xl shadow transition-all transform active:scale-95 text-sm md:text-base border border-emerald-700 disabled:opacity-50"
+                className="w-full flex items-center justify-center space-x-2 bg-[#448361] hover:bg-[#386D51] text-white font-bold py-2.5 px-4 rounded-md shadow-sm transition-colors text-xs sm:text-sm border border-[#448361] disabled:opacity-50"
               >
-                <CheckCircle2 className="w-5 h-5" />
+                <CheckCircle2 className="w-4 h-4" />
                 <span>Aceptada</span>
               </button>
 
               <button
                 disabled={submittingAction}
                 onClick={() => handleAction('rechazada')}
-                className="w-full flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white font-extrabold py-3.5 px-4 rounded-xl shadow transition-all transform active:scale-95 text-sm md:text-base border border-red-700 disabled:opacity-50"
+                className="w-full flex items-center justify-center space-x-2 bg-[#EB5757] hover:bg-[#D84545] text-white font-bold py-2.5 px-4 rounded-md shadow-sm transition-colors text-xs sm:text-sm border border-[#EB5757] disabled:opacity-50"
               >
-                <XCircle className="w-5 h-5" />
+                <XCircle className="w-4 h-4" />
                 <span>Rechazada</span>
               </button>
             </div>

@@ -1,6 +1,6 @@
-# Movistar IQ - Herramienta de Inteligencia Comercial para Asesores
+# AsesorIA - Herramienta de Inteligencia Comercial para Asesores
 
-**Movistar IQ** es una aplicación web interna y motor predictivo de priorización comercial diseñado para asesores de tienda y call center de Movistar.
+**AsesorIA** es una aplicación web interna y motor predictivo de priorización comercial diseñado para asesores de tienda y call center de Movistar.
 
 ---
 
@@ -64,7 +64,7 @@ npm run dev
 ```
 
 La aplicación web quedará disponible en:
-- **Movistar IQ Web App**: [http://localhost:3000](http://localhost:3000)
+- **AsesorIA Web App**: [http://localhost:3000](http://localhost:3000)
 
 ---
 
